@@ -35,7 +35,7 @@ public class CubaseDrumMap
 
         if (XDocument.Load(filePath) is not XDocument doc) throw new FileNotFoundException(filePath);
 
-        if (doc.XPathSelectElement($"/{nameof(CubaseDrumMap)}") is not XElement root) throw new ArgumentException(filePath);
+        if (doc.XPathSelectElement($"/DrumMap") is not XElement root) throw new ArgumentException(filePath);
 
         IEnumerable<XElement> GetItems(string key) => root.XPathSelectElements($"*[@name='{key}']/item");
 

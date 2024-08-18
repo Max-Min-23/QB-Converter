@@ -13,6 +13,13 @@ public enum ConvertType
     CSVToCubase
 }
 
+public static class FileType
+{
+    public const string drm = ".drm";
+    public const string pitchlist = ".pitchlist";
+    public const string csv = ".csv";
+}
+
 public static class Map
 {
     private static string FilePath = string.Empty;
@@ -25,38 +32,38 @@ public static class Map
 
         string ext = Path.GetExtension(file).ToLower();
 
-        if (ext != ".drm" && ext != ".pitchlist" & ext != ".csv")
+        if (ext != FileType.drm && ext != FileType.pitchlist & ext != FileType.csv)
         {
             return;
         }
 
-        if (ext == ".drm" && convertType != ConvertType.BasedOnINote && convertType != ConvertType.BasedOnONote && convertType != ConvertType.CubaseToCSV)
+        if (ext == FileType.drm && convertType != ConvertType.BasedOnINote && convertType != ConvertType.BasedOnONote && convertType != ConvertType.CubaseToCSV)
         {
             return;
         }
-        else if (ext == ".pitchlist" && convertType != ConvertType.SOneToCubase && convertType != ConvertType.SOneToCSV)
+        else if (ext == FileType.pitchlist && convertType != ConvertType.SOneToCubase && convertType != ConvertType.SOneToCSV)
         {
             return;
         }
-        else if (ext == ".csv" && convertType != ConvertType.CSVToSOne && convertType != ConvertType.CSVToCubase)
+        else if (ext == FileType.csv && convertType != ConvertType.CSVToSOne && convertType != ConvertType.CSVToCubase)
         {
             return;
         }
 
         // Import Map
-        if (ext == ".drm")
+        if (ext == FileType.drm)
         {
             ImportMap(Cubase.CubaseDrumMap.Load(file), convertType == ConvertType.BasedOnONote, csvorder);
         }
-        else if (ext == ".pitchlist")
+        else if (ext == FileType.pitchlist)
         {
-            if (StudioOnePitchList.LoadPitchList(file) is not PitchList pitchList)
+            if (StudioOnePitchList.Load(file) is not PitchList pitchList)
             {
                 throw new Exception();
             }
             ImportMap(pitchList);
         }
-        else if (ext == ".csv")
+        else if (ext == FileType.csv)
         {
             ImportMap(file);
         }
@@ -149,11 +156,11 @@ public static class Map
         StringBuilder builder = new();
 
         builder.AppendLine($"<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-        builder.AppendLine($"<Music.PitchNameList title=\"{EscapeString(Map.Name)}\">");
+        builder.AppendLine($"<Music.PitchNameList title=\"{EscXML(Map.Name)}\">");
 
         foreach (var item in Map.Items)
         {
-            builder.AppendLine($"\t<Music.PitchName pitch=\"{(onote ? item.OutPitch : item.Pitch)}\" name=\"{EscapeString(item.Name)}\"/>");
+            builder.AppendLine($"\t<Music.PitchName pitch=\"{(onote ? item.OutPitch : item.Pitch)}\" name=\"{EscXML(item.Name)}\"/>");
         }
 
         builder.AppendLine($"</Music.PitchNameList>");
@@ -211,7 +218,6 @@ public static class Map
 
         builder.AppendLine(string.Join(",", ["Order", "Pitch", "Note", "Out Pitch", "Out Note", "Name", "Duplicate", "Check"]));
 
-
         int order = 0;
         if (csvorder)
         {
@@ -260,7 +266,7 @@ public static class Map
         File.WriteAllText(Path.Combine(Path.GetDirectoryName(file)!, $"{Path.GetFileNameWithoutExtension(file)}_{Path.GetExtension(file).Replace(".", "")}.csv"), builder.ToString());
     }
 
-    private static string EscapeString(string str)
+    private static string EscXML(string str)
     {
         return
             str.

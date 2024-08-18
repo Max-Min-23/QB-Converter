@@ -41,7 +41,7 @@ public partial class PitchList
 
 public static class StudioOnePitchList
 {
-    public static PitchList? LoadPitchList(string filepath)
+    public static PitchList? Load(string filepath)
     {
         var xml = new XmlSerializer(typeof(PitchList));
         using (StreamReader sr = new(filepath))
