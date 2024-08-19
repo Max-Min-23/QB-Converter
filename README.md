@@ -14,7 +14,7 @@ CubaseおよびStudio Oneのドラムマップを相互変換するツールで�
 ### 変換タイプ
 タイプ名 | 変換内容 | 備考
 --- | --- | ---
-*.drm -> *.pitchlist Based On In Pitch | 表示順 | 
+*.drm -> *.pitchlist Based On In Pitch | Cubaseの*.drmファイルを、入力ノートを基準にStudio Oneの*.pitchlistへ変換します | 
 *.drm -> *.pitchlist Based On Out Pitch | 入力ノート | 
 *.pitchlist -> *.drm | 入力ノート | 
 *.drm -> .csv | 入力ノート | 
