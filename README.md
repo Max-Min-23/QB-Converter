@@ -29,8 +29,9 @@ https://github.com/Max-Min-23/QB-Converter/blob/master/QB%20Converter%201.0.0.zi
 *.csv -> *.drm | Studio Oneの*.pitchlistへ変換します
 
 ### "CSV Pitch Order"
+チェックがない場合は元データの並び順で出力されます。  
 チェックを入れると、CSV出力の際、並び順が0～127の音程順になります。
-チェックがない場合は元データの並び順で出力されます。
+データの並び順が統一されるため、マップを比較する場合などに使用します。
 
 ### Cubase->Studio Oneへの変換について
 Cubaseのドラムマップでは各音源の違いに対応できるよう、入力ノートと出力ノートに別々の音程を設定しマッピングすることができますが、Studio Oneにはマッピング機能がありません。
