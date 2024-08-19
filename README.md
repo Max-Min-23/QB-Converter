@@ -20,12 +20,12 @@ Studio Oneのドラムマップは出力ノートのみの指定となってい�
 ### CSVファイルフォーマット
 列名 | 内容 | 備考
 --- | --- | ---
-Order | 表示順 | 内容C1
-Pitch | 入力ノート | 内容C2
-Note | 入力ノート名 | 内容C3
-Out Pitch | 出力ノート | 内容C3
-Out Note | 出力ノート名 | 内容C3
-Name | インストルメント名 | 内容C3
-Duplicate | 出力ノート重複 | 内容C3
-Check | 強制出力 | 内容C3
+Order | 表示順 | 
+Pitch | 入力ノート | 
+Note | 入力ノート名 | 
+Out Pitch | 出力ノート | 
+Out Note | 出力ノート名 | 
+Name | インストルメント名 | 
+Duplicate | 出力ノート重複 | 
+Check | 強制出力 | 
 
