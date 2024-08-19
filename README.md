@@ -7,6 +7,9 @@ CubaseおよびStudio Oneのドラムマップを相互変換するツールで�
 
 ### インストール
 https://github.com/Max-Min-23/QB-Converter/blob/master/QB%20Converter%201.0.0.zip
+上記のリンクをクリックし、右側にあるダウンロードボタンでダウンロードしてください。
+"QB Converter.exe"のプロパティにセキュリティチェックがある場合は「許可」を行ってください。
+レジストりは使用していませんので。不要になった場合はフォルダ毎削除してください。
 
 ### 使い方
 "Select Convert Type"より変換タイプを選択し、"Drop File Here!"と表示されている部分にファイルをドラッグ＆ドロップするだけです。
