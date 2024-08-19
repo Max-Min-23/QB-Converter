@@ -12,15 +12,15 @@ CubaseおよびStudio Oneのドラムマップを相互変換するツールで�
 同名のファイルがある場合は上書きされます。
 
 ### 変換タイプ
-タイプ名 | 変換内容 | 備考
+タイプ名 | 変換内容
 --- | --- | ---
-*.drm -> *.pitchlist Based On In Pitch | Cubaseの*.drmファイルを、入力ノートを基準にStudio Oneの*.pitchlistへ変換します | 
-*.drm -> *.pitchlist Based On Out Pitch | 入力ノート | 
-*.pitchlist -> *.drm | 入力ノート | 
-*.drm -> .csv | 入力ノート | 
-*.Pitchlist -> .csv | 入力ノート | 
-*.csv -> *.pitchlist | 入力ノート | 
-*.csv -> *.drm | 入力ノート | 
+*.drm -> *.pitchlist Based On In Pitch | Cubaseの*.drmファイルを、入力ノートを基準にStudio Oneの*.pitchlistへ変換します
+*.drm -> *.pitchlist Based On Out Pitch | 入力ノート
+*.pitchlist -> *.drm | 入力ノート
+*.drm -> .csv | 入力ノート
+*.Pitchlist -> .csv | 入力ノート
+*.csv -> *.pitchlist | 入力ノート
+*.csv -> *.drm | 入力ノート
 
 ### "CSV Pitch Order"
 チェックを入れると、CSV出力の際、並び順が0～127の音程順になります。
