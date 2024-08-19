@@ -68,18 +68,26 @@ public static class Map
             ImportMap(file);
         }
 
-        //
-        if (convertType == ConvertType.BasedOnINote ||
+        // Convert
+        if (
+            convertType == ConvertType.BasedOnINote ||
             convertType == ConvertType.BasedOnONote ||
-            convertType == ConvertType.CSVToSOne)
+            convertType == ConvertType.CSVToSOne
+        )
         {
             ToPitchList(file, convertType == ConvertType.BasedOnONote);
         }
-        else if (convertType == ConvertType.SOneToCubase || convertType == ConvertType.CSVToCubase)
+        else if (
+            convertType == ConvertType.SOneToCubase ||
+            convertType == ConvertType.CSVToCubase
+        )
         {
             ToDrm(file);
         }
-        else if (convertType == ConvertType.SOneToCSV || convertType == ConvertType.CubaseToCSV)
+        else if (
+            convertType == ConvertType.SOneToCSV ||
+            convertType == ConvertType.CubaseToCSV
+        )
         {
             ToCSV(file, csvorder);
         }
@@ -160,6 +168,10 @@ public static class Map
 
         foreach (var item in Map.Items)
         {
+            if (item.Pitch != item.OutPitch)
+            {
+                builder.AppendLine($"\t<!-- In Pitch = {item.Pitch}, Out Pitch = {item.OutPitch} -->");
+            }
             builder.AppendLine($"\t<Music.PitchName pitch=\"{(onote ? item.OutPitch : item.Pitch)}\" name=\"{EscXML(item.Name)}\"/>");
         }
 

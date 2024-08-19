@@ -60,7 +60,7 @@ public class CubaseDrumMap
     {
         XDocument doc = new XDocument(new XDeclaration(version: "1.0", encoding: "utf-8", null));
 
-        XElement root = new XElement(nameof(CubaseDrumMap));
+        XElement root = new XElement("DrumMap");
 
         doc.Add(root);
 
