@@ -1,21 +1,29 @@
 # QB Converter
 A tool to convert Cubase and Studio One drum maps to each other. 
-CubaseおよびStudio Oneのドラムマップを相互変換するツールです
-Windowsで利用可能.  
+CubaseおよびStudio Oneのドラムマップを相互変換するツールです。Windowsで利用可能.  
 ![QB Converter Image](https://github.com/user-attachments/assets/70f7498e-fbd2-4669-a9be-c2c4a7801250)
-### Features
-- 
 ### 特徴
 - ７つの変換タイプ搭載
-- 1.Cubase->Studio One (入力ノート基準)
-- 2.Cubase->Studio One (出力ノート基準)
-- 3.Studio One->Cubase
-- 4.Cubase->CSV
-- 5.Studio One->Cubase
-- 6.CSV->Studio One
-- 7.CSV->Cubase
+- ドラムマップ以外にCSVファイルへの変換も対応
 ### 使い方
 変換タイプを選択し、"Drop File Here!"と表示されている部分にファイルをドラッグ＆ドロップするだけです。
 変換されたファイルは元ファイルと同じフォルダに出力されます。
 同名のファイルがある場合は上書きされます。
-### 変化委タイプについて
+### "CSV Pitch Order"
+チェックを入れると、CSV出力の際、並び順が0～127の音程順になります。
+チェックがない場合は元データの並び順で出力されます。
+### Cubase->Studio Oneへの変換について
+Cubaseのドラムマップでは各音源の違いに対応できるよう、入力ノートと出力ノートに別々の音程を設定しマッピングすることができますが、Studio Oneにはマッピング機能がありません。
+Studio Oneのドラムマップは出力ノートのみの指定となっています。
+マッピングが設定されている（入力ノートと出力ノートが異なる）Cubaseのドラムマップを変換する際、重複する出力ノートがある場合はエラー"Dupulicate ONote"が表示されます。
+その際は、一度CSVへ変換、CSVファイルを編集、CSVファイルから変換してください。
+### CSVファイルフォーマット
+Order      : 並び順
+Pitch      : 入力ノート
+Note       : 入力ノート名
+Out Pitch  : 出力ノート
+Out Note   : 出力ノート名
+Name       : キットピース名
+Duplicate  : 出力ノートが重複している場合"*"がセットされます
+             "*"のついた行は、CSVからの取り込みの際、除外されます
+Check      : 上記Duplicate列の内容を無視して強制的に取り込みます
