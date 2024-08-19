@@ -6,7 +6,7 @@ CubaseおよびStudio Oneのドラムマップを相互変換するツールで�
 - ドラムマップ以外にCSVファイルへの変換も対応
 
 ### インストール
-
+https://github.com/Max-Min-23/QB-Converter/blob/master/QB%20Converter%201.0.0.zip
 
 ### 使い方
 "Select Convert Type"より変換タイプを選択し、"Drop File Here!"と表示されている部分にファイルをドラッグ＆ドロップするだけです。
