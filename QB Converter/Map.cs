@@ -252,7 +252,7 @@ public static class Map
                 }
                 else
                 {
-                    builder.AppendLine($"{pitch},0,{Pitch.NoteName(0)},,0,{Pitch.NoteName(0)},,");
+                    builder.AppendLine($"{order},{order},{Pitch.NoteName((byte)order)},{order},{Pitch.NoteName((byte)order)},,");
                 }
                 order++;
             });
