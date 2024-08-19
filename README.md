@@ -1,5 +1,5 @@
 # QB Converter
-CubaseおよびStudio Oneのドラムマップを相互変換するツールです。Windowsでのみ利用可能です。
+CubaseおよびStudio Oneのドラムマップを相互変換するツールです。Windowsでのみ利用可能です。  
 ![QB Converter Image](https://github.com/user-attachments/assets/70f7498e-fbd2-4669-a9be-c2c4a7801250)
 ### 特徴
 - ７つの変換タイプ搭載
