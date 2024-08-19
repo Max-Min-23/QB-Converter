@@ -4,8 +4,13 @@ CubaseおよびStudio Oneのドラムマップを相互変換するツールで�
 Windowsで利用可能.  
 ![QB Converter Image](https://github.com/user-attachments/assets/70f7498e-fbd2-4669-a9be-c2c4a7801250)
 ### Features
-- Supports .csv import and export for editing in other software (e.g. Excel).
-- Multiple simultaneous software launches are possible.
-### 特徴
-- ７つの変換モード搭載
 - 
+### 特徴
+- ７つの変換タイプ搭載
+- 1.Cubase->Studio One (入力ノート基準)
+- 2.Cubase->Studio One (出力ノート基準)
+- 3.Studio One->Cubase
+- 4.Cubase->CSV
+- 5.Studio One->Cubase
+- 6.CSV->Studio One
+- 7.CSV->Cubase
