@@ -20,12 +20,12 @@ https://github.com/Max-Min-23/QB-Converter/blob/master/QB%20Converter%201.0.0.zi
 ### 変換タイプ
 タイプ名 | 変換内容
 --- | --- 
-*.drm -> *.pitchlist Based On In Pitch | Cubaseの*.drmファイルを、入力ノートを基準にStudio Oneの*.pitchlistへ変換します
-*.drm -> *.pitchlist Based On Out Pitch | Cubaseの*.drmファイルを、出力ノートを基準にStudio Oneの*.pitchlistへ変換します
-*.pitchlist -> *.drm | Studio Oneの*.pitchlistをCubasの*.drmファイルへ変換します
+*.drm -> *.pitchlist Based On In Pitch | Cubaseの*.drmを、入力ノートを基準にStudio Oneの*.pitchlistへ変換します
+*.drm -> *.pitchlist Based On Out Pitch | Cubaseの*.drmを、出力ノートを基準にStudio Oneの*.pitchlistへ変換します
+*.pitchlist -> *.drm | Studio Oneの*.pitchlistをCubasの*.drmへ変換します
 *.drm -> .csv | Cubaseの*.drmファイルを、CSVファイルへ変換します
-*.Pitchlist -> .csv | Studio Oneの*.pitchlistファイルを、CSVファイルへ変換します
-*.csv -> *.pitchlist | CSVファイルをCubasの*.drmファイルへ変換します
+*.Pitchlist -> .csv | Studio Oneの*.pitchlistを、CSVファイルへ変換します
+*.csv -> *.pitchlist | CSVファイルをCubasの*.drmへ変換します
 *.csv -> *.drm | Studio Oneの*.pitchlistへ変換します
 
 ### "CSV Pitch Order"
