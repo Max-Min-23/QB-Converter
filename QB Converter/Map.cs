@@ -1,4 +1,6 @@
 ﻿using System.Text;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace QB_Converter;
 
@@ -61,7 +63,10 @@ public static class Map
             {
                 throw new Exception();
             }
-            ImportMap(pitchList);
+
+            XDocument? xml = XDocument.Load(file);
+
+            ImportMap(pitchList, xml);
         }
         else if (ext == FileType.csv)
         {
@@ -103,7 +108,7 @@ public static class Map
             MapItem item = new()
             {
                 Name = d.Name,
-                Pitch = d.INote,
+                InPitch = d.INote,
                 OutPitch = d.ONote
             };
 
@@ -116,7 +121,7 @@ public static class Map
         }
     }
 
-    private static void ImportMap(PitchList drum)
+    private static void ImportMap(PitchList drum, XDocument xml)
     {
         Name = drum.Title;
 
@@ -124,12 +129,40 @@ public static class Map
         {
             MapItem item = new()
             {
-                Pitch = d.Pitch,
+                InPitch = d.Pitch,
                 Name = d.Name,
                 OutPitch = d.Pitch
             };
 
             Items.Add(item);
+        }
+
+        if (xml.Element("Music.PitchNameList")?.Nodes().Where(x => x.NodeType == XmlNodeType.Comment).ToArray() is not XNode[] comments)
+        {
+            return;
+        }
+
+        foreach (var com in comments)
+        {
+            var text = com.ToString().Substring(4, com.ToString().Length - 7);
+            var spl1 = text.Split(',').Select(x => x.Trim()).ToArray();
+            if (spl1.Length == 2)
+            {
+                var spl2 = spl1[0].Split("=").Select(x => x.Trim()).ToArray();
+                var spl3 = spl1[1].Split("=").Select(x => x.Trim()).ToArray();
+                if (spl2.Length == 2 && spl3.Length == 2 && spl2[0] == "In Pitch" && spl3[0] == "Out Pitch")
+                {
+                    int inp = 0;
+                    int outp = 0;
+                    if (int.TryParse(spl2[1], out inp) && int.TryParse(spl3[1], out outp))
+                    {
+                        if (Items.Where(x => x.InPitch == inp).FirstOrDefault() is MapItem map)
+                        {
+                            map.OutPitch = outp;
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -149,7 +182,7 @@ public static class Map
             if (string.IsNullOrWhiteSpace(col[5])) continue;
 
             MapItem item = new();
-            item.Pitch = int.Parse(col[1]);
+            item.InPitch = int.Parse(col[1]);
             item.Name = $"{col[5]}";
             item.OutPitch = int.Parse(col[3]);
             item.Duplicate = $"{col[4]}";
@@ -168,8 +201,8 @@ public static class Map
 
         foreach (var item in Map.Items)
         {
-            builder.AppendLine($"\t<!-- In Pitch = {item.Pitch}, Out Pitch = {item.OutPitch} -->");
-            builder.AppendLine($"\t<Music.PitchName pitch=\"{(onote ? item.OutPitch : item.Pitch)}\" name=\"{EscXML(item.Name)}\"/>");
+            builder.AppendLine($"\t<!-- In Pitch = {item.InPitch}, Out Pitch = {item.OutPitch} -->");
+            builder.AppendLine($"\t<Music.PitchName pitch=\"{(onote ? item.OutPitch : item.InPitch)}\" name=\"{EscXML(item.Name)}\"/>");
         }
 
         builder.AppendLine($"</Music.PitchNameList>");
@@ -189,18 +222,18 @@ public static class Map
         Enumerable.Range(0, 128).ToList().ForEach(pitch =>
         {
             odr.Add(pitch, 999);
-            if (Items.Where(x => x.Pitch == pitch).FirstOrDefault() is MapItem item)
+            if (Items.Where(x => x.InPitch == pitch).FirstOrDefault() is MapItem item)
             {
                 cubase.Map.Items[pitch].Name = item.Name;
                 cubase.Map.Items[pitch].ONote = item.OutPitch;
-                cubase.Map.Items[pitch].DisplayNote = int.Parse($"0{item.Pitch}");
+                cubase.Map.Items[pitch].DisplayNote = int.Parse($"0{item.InPitch}");
             }
         });
 
         int i = 1;
         Items.ForEach(item =>
         {
-            odr[item.Pitch] = i;
+            odr[item.InPitch] = i;
             i++;
         });
 
@@ -232,7 +265,7 @@ public static class Map
         {
             Enumerable.Range(0, 128).ToList().ForEach(pitch =>
             {
-                MapItem? item = Items.FirstOrDefault(x => x.Pitch == pitch);
+                MapItem? item = Items.FirstOrDefault(x => x.InPitch == pitch);
 
                 var dup = Items.Where(x => x.OutPitch == item?.OutPitch).Count() > 1 ? "*" : string.Empty;
 
@@ -240,7 +273,7 @@ public static class Map
                 {
                     builder.Append($"{order}");
                     builder.Append($",{pitch}");
-                    builder.Append($",{Pitch.NoteName((byte)item.Pitch)}");
+                    builder.Append($",{Pitch.NoteName((byte)item.InPitch)}");
                     builder.Append($",{item.OutPitch}");
                     builder.Append($",{Pitch.NoteName((byte)item.OutPitch)}");
                     builder.Append($",{item.Name}");
@@ -261,8 +294,8 @@ public static class Map
                 var dup = Items.Where(x => x.OutPitch == item.OutPitch).Count() > 1 ? "*" : string.Empty;
 
                 builder.Append($"{order}");
-                builder.Append($",{item.Pitch}");
-                builder.Append($",{Pitch.NoteName((byte)item.Pitch)}");
+                builder.Append($",{item.InPitch}");
+                builder.Append($",{Pitch.NoteName((byte)item.InPitch)}");
                 builder.Append($",{item.OutPitch}");
                 builder.Append($",{Pitch.NoteName((byte)item.OutPitch)}");
                 builder.Append($",{item.Name}");

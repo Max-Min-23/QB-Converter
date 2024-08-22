@@ -1,4 +1,5 @@
-﻿using System.Xml.Serialization;
+﻿using System.Xml.Linq;
+using System.Xml.Serialization;
 
 namespace QB_Converter;
 
@@ -51,5 +52,10 @@ public static class StudioOnePitchList
             else
                 return default;
         }
+    }
+
+    public static XDocument XmlLoad(string filepath)
+    {
+        return XDocument.Load(filepath);
     }
 }
