@@ -3,10 +3,29 @@ using System.Xml.XPath;
 
 namespace Cubase;
 
+public static class Tag
+{
+    public static string DrumMap = "DrumMap";
+    public static string list = "list";
+    public static string item = "item";
+    public static string @int = "int";
+    public static string @string = "string";
+    public static string @float = "float";
+}
+
+public static class Attr
+{
+    public static string name = "name";
+    public static string value = "value";
+    public static string type = "type";
+    public static string wide = "wide";
+    public static string Flags = "Flags";
+}
+
 public class CubaseDrumMap
 {
     #region ctor
-
+    
     public CubaseDrumMap() { }
 
     #endregion
@@ -35,23 +54,23 @@ public class CubaseDrumMap
 
         if (XDocument.Load(filePath) is not XDocument doc) throw new FileNotFoundException(filePath);
 
-        if (doc.XPathSelectElement($"/DrumMap") is not XElement root) throw new ArgumentException(filePath);
+        if (doc.XPathSelectElement($"/{Tag.DrumMap}") is not XElement root) throw new ArgumentException(filePath);
 
-        IEnumerable<XElement> GetItems(string key) => root.XPathSelectElements($"*[@name='{key}']/item");
+        IEnumerable<XElement> GetItems(string key) => root.XPathSelectElements($"*[@{Attr.name}='{key}']/{Tag.item}");
 
         drumMap = new();
 
-        drumMap.Name = root.XPathSelectElement($"*[@name='{nameof(Name)}']")?.Attribute("value")?.Value ?? string.Empty;
+        drumMap.Name = root.XPathSelectElement($"*[@{Attr.name}='{nameof(Name)}']")?.Attribute($"{Attr.value}")?.Value ?? string.Empty;
 
         drumMap.Quantize.Load(GetItems(nameof(Quantize)));
 
         drumMap.Map.Load(GetItems((nameof(Map))));
 
-        drumMap.Order = GetItems((nameof(Order))).Select(elm => int.Parse(elm.Attribute("value")?.Value ?? "0")).ToList();
+        drumMap.Order = GetItems((nameof(Order))).Select(elm => int.Parse(elm.Attribute(Attr.value)?.Value ?? "0")).ToList();
 
         drumMap.OutputDevices.Load(GetItems(nameof(OutputDevices)));
 
-        drumMap.Flags = int.Parse(root.XPathSelectElement($"*[@name='{nameof(Flags)}']")?.Attribute("value")?.Value ?? "0");
+        drumMap.Flags = int.Parse(root.XPathSelectElement($"*[@{Attr.name}='{nameof(Flags)}']")?.Attribute(Attr.value)?.Value ?? "0");
 
         return drumMap;
     }
@@ -60,23 +79,23 @@ public class CubaseDrumMap
     {
         XDocument doc = new XDocument(new XDeclaration(version: "1.0", encoding: "utf-8", null));
 
-        XElement root = new XElement("DrumMap");
+        XElement root = new XElement($"{Tag.DrumMap}");
 
         doc.Add(root);
 
-        root.Add(new XElement("string", [new XAttribute("name", "Name"), new XAttribute("value", Name), new XAttribute("wide", "true")]));
+        root.Add(new XElement(Tag.@string, [new XAttribute(Attr.name, $"{nameof(Name)}"), new XAttribute(Attr.value, Name), new XAttribute(Attr.wide, true.ToString())]));
 
         root.Add(Quantize.ToElement());
 
         root.Add(Map.ToElement());
 
-        XElement order = new XElement("list", [new XAttribute("name", nameof(Order)), new XAttribute("type", "int")]);
-        Order.ForEach(item => order.Add(new XElement("item", new XAttribute("value", $"{item}"))));
+        XElement order = new XElement(Tag.list, [new XAttribute(Attr.name, nameof(Order)), new XAttribute(Attr.type, Tag.@int)]);
+        Order.ForEach(item => order.Add(new XElement(Tag.item, new XAttribute(Attr.value, $"{item}"))));
         root.Add(order);
 
         root.Add(OutputDevices.ToElement());
 
-        root.Add(new XElement("int", [new XAttribute("name", "Flags"), new XAttribute("value", Flags)]));
+        root.Add(new XElement(Tag.@int, [new XAttribute(Attr.name, $"{Attr.Flags}"), new XAttribute($"{Attr.value}", Flags)]));
 
         doc.Save(filePath);
     }
@@ -137,8 +156,8 @@ public abstract class ListElement<T>
             new(
                 "list",
                 [
-                    new XAttribute("name", GetType().Name.Replace("Element", string.Empty)),
-                    new XAttribute("type", "list"),
+                    new XAttribute(Attr.name, GetType().Name.Replace($"{nameof(XElement.Element)}", string.Empty)),
+                    new XAttribute(Attr.type, "list"),
                 ]
             );
 
@@ -158,16 +177,16 @@ public abstract class ListElementItem
     {
         foreach (var prop in GetType().GetProperties())
         {
-            if (element.XPathSelectElement($"*[@name='{prop.Name}']") is not XElement item) continue;
+            if (element.XPathSelectElement($"*[@{Attr.name}='{prop.Name}']") is not XElement item) continue;
 
             object value = null!;
 
             if (prop.PropertyType == typeof(string))
-                value = item.Attribute("value")?.Value ?? string.Empty;
+                value = item.Attribute(Attr.value)?.Value ?? string.Empty;
             else if (prop.PropertyType == typeof(int))
-                value = int.Parse(item.Attribute("value")?.Value ?? "0");
+                value = int.Parse(item.Attribute(Attr.value)?.Value ?? @"0");
             else if (prop.PropertyType == typeof(float))
-                value = float.Parse(item.Attribute("value")?.Value ?? "0");
+                value = float.Parse(item.Attribute(Attr.value)?.Value ?? @"0");
             else
                 continue;
 
@@ -179,29 +198,29 @@ public abstract class ListElementItem
 
     string getTypeName(Type type)
     {
-        if (type == typeof(int)) return "int";
-        if (type == typeof(string)) return "string";
-        if (type == typeof(float)) return "float";
+        if (type == typeof(int)) return Tag.@int;
+        if (type == typeof(string)) return Tag.@string;
+        if (type == typeof(float)) return Tag.@float;
         throw new ArgumentException();
     }
 
     internal XElement ToElement()
     {
-        XElement element = new XElement("item");
+        XElement element = new XElement(Tag.item);
 
         foreach (var p in GetType().GetProperties())
             element.Add(
                 new XElement(getTypeName(p.PropertyType),
                 p.PropertyType == typeof(string) ?
                     new XAttribute[] {
-                        new XAttribute("name", $"{p.Name}"),
-                        new XAttribute("value", $"{p.GetValue(this)}"),
-                        new XAttribute("wide", "true"),
+                        new XAttribute(Attr.name, $"{p.Name}"),
+                        new XAttribute(Attr.value, $"{p.GetValue(this)}"),
+                        new XAttribute(Attr.wide, true.ToString()),
                     }
                     :
                     [
-                        new XAttribute("name", $"{p.Name}"),
-                        new XAttribute("value", $"{p.GetValue(this)}")
+                        new XAttribute(Attr.name, $"{p.Name}"),
+                        new XAttribute(Attr.value, $"{p.GetValue(this)}")
                     ]
                 )
             );
@@ -275,8 +294,8 @@ public class OutputDevicesElement
 public class OutputDevicesItem
     : ListElementItem
 {
-    public string DeviceName { get; set; } = "Default Device";
-    public string PortName { get; set; } = "Default Port";
+    public string DeviceName { get; set; } = @"Default Device";
+    public string PortName { get; set; } = @"Default Port";
 }
 
 #endregion

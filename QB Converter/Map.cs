@@ -168,10 +168,7 @@ public static class Map
 
         foreach (var item in Map.Items)
         {
-            if (item.Pitch != item.OutPitch)
-            {
-                builder.AppendLine($"\t<!-- In Pitch = {item.Pitch}, Out Pitch = {item.OutPitch} -->");
-            }
+            builder.AppendLine($"\t<!-- In Pitch = {item.Pitch}, Out Pitch = {item.OutPitch} -->");
             builder.AppendLine($"\t<Music.PitchName pitch=\"{(onote ? item.OutPitch : item.Pitch)}\" name=\"{EscXML(item.Name)}\"/>");
         }
 
