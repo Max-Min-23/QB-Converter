@@ -225,7 +225,7 @@ public static class Map
     {
         StringBuilder builder = new();
 
-        builder.AppendLine(string.Join(",", ["Order", "Pitch", "Note", "Out Pitch", "Out Note", "Name", "Duplicate", "Check"]));
+        builder.AppendLine(string.Join(",", ["Order", "In Pitch", "In Note", "Out Pitch", "Out Note", "Name", "Duplicate", "Check"]));
 
         int order = 0;
         if (csvorder)
