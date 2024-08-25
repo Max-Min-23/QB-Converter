@@ -25,7 +25,7 @@ public static class Attr
 public class CubaseDrumMap
 {
     #region ctor
-    
+
     public CubaseDrumMap() { }
 
     #endregion

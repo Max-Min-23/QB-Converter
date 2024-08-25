@@ -107,7 +107,7 @@ public static class Map
         {
             MapItem item = new()
             {
-                Name = d.Name,
+                PitchName = d.Name,
                 InPitch = d.INote,
                 OutPitch = d.ONote
             };
@@ -130,7 +130,7 @@ public static class Map
             MapItem item = new()
             {
                 InPitch = d.Pitch,
-                Name = d.Name,
+                PitchName = d.Name,
                 OutPitch = d.Pitch
             };
 
@@ -170,25 +170,16 @@ public static class Map
     {
         string[] data = File.ReadAllLines(file);
 
-        for (int i = 1; i < data.Length; i++)
+        for (int i = 0; i < data.Length; i++)
         {
-            var col = data[i].Split(',');
+            MapItem map = MapItem.CreateItem(data[i]);
 
-            if (col.Length != 8)
-            {
-                throw new Exception();
-            }
+            if (map.IsHeader()) continue;
 
-            if (string.IsNullOrWhiteSpace(col[5])) continue;
-
-            MapItem item = new();
-            item.InPitch = int.Parse(col[1]);
-            item.Name = $"{col[5]}";
-            item.OutPitch = int.Parse(col[3]);
-            item.Duplicate = $"{col[4]}";
-            item.Check = $"{col[5]}";
-
-            Items.Add(item);
+            if (map.IsValid())
+                Items.Add(map);
+            else
+                throw new ArgumentException();
         }
     }
 
@@ -202,7 +193,7 @@ public static class Map
         foreach (var item in Map.Items)
         {
             builder.AppendLine($"\t<!-- In Pitch = {item.InPitch}, Out Pitch = {item.OutPitch} -->");
-            builder.AppendLine($"\t<Music.PitchName pitch=\"{(onote ? item.OutPitch : item.InPitch)}\" name=\"{EscXML(item.Name)}\"/>");
+            builder.AppendLine($"\t<Music.PitchName pitch=\"{(onote ? item.OutPitch : item.InPitch)}\" name=\"{EscXML(item.PitchName)}\"/>");
         }
 
         builder.AppendLine($"</Music.PitchNameList>");
@@ -224,7 +215,7 @@ public static class Map
             odr.Add(pitch, 999);
             if (Items.Where(x => x.InPitch == pitch).FirstOrDefault() is MapItem item)
             {
-                cubase.Map.Items[pitch].Name = item.Name;
+                cubase.Map.Items[pitch].Name = item.PitchName;
                 cubase.Map.Items[pitch].ONote = item.OutPitch;
                 cubase.Map.Items[pitch].DisplayNote = int.Parse($"0{item.InPitch}");
             }
@@ -258,7 +249,7 @@ public static class Map
     {
         StringBuilder builder = new();
 
-        builder.AppendLine(string.Join(",", ["Order", "In Pitch", "In Note", "Out Pitch", "Out Note", "Name", "Duplicate", "Check"]));
+        builder.AppendLine(MapItem.GetCSVHeader());
 
         int order = 0;
         if (csvorder)
@@ -271,18 +262,12 @@ public static class Map
 
                 if (item != null)
                 {
-                    builder.Append($"{order}");
-                    builder.Append($",{pitch}");
-                    builder.Append($",{Pitch.NoteName((byte)item.InPitch)}");
-                    builder.Append($",{item.OutPitch}");
-                    builder.Append($",{Pitch.NoteName((byte)item.OutPitch)}");
-                    builder.Append($",{item.Name}");
-                    builder.Append($",{dup}");
-                    builder.AppendLine($",");
+                    item.Order = order;
+                    builder.AppendLine($"{item}");
                 }
                 else
                 {
-                    builder.AppendLine($"{order},{order},{Pitch.NoteName((byte)order)},{order},{Pitch.NoteName((byte)order)},,");
+                    builder.AppendLine($"{new MapItem { Order = order }}");
                 }
                 order++;
             });
@@ -291,16 +276,9 @@ public static class Map
         {
             Items.ForEach(item =>
             {
+                item.Order = order;
                 var dup = Items.Where(x => x.OutPitch == item.OutPitch).Count() > 1 ? "*" : string.Empty;
-
-                builder.Append($"{order}");
-                builder.Append($",{item.InPitch}");
-                builder.Append($",{Pitch.NoteName((byte)item.InPitch)}");
-                builder.Append($",{item.OutPitch}");
-                builder.Append($",{Pitch.NoteName((byte)item.OutPitch)}");
-                builder.Append($",{item.Name}");
-                builder.Append($",{dup}");
-                builder.AppendLine($",");
+                builder.AppendLine($"{item}");
                 order++;
             });
         }

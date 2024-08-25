@@ -19,4 +19,9 @@ public static class Pitch
         int oct = (pitch - note) / 12 - (Method == PitchNoteMethod.YAMAHA ? 2 : 1);
         return $"{NoteNames[note]}{oct}";
     }
+
+    public static string NoteName(this int pitch)
+    {
+        return ((byte)pitch).NoteName();
+    }
 }
