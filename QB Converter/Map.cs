@@ -1,128 +1,120 @@
 ﻿using System.Text;
 using System.Xml;
 using System.Xml.Linq;
+using Cubase;
 
 namespace QB_Converter;
-
-public enum ConvertType
-{
-    BasedOnINote,
-    BasedOnONote,
-    SOneToCubase,
-    CubaseToCSV,
-    SOneToCSV,
-    CSVToSOne,
-    CSVToCubase
-}
-
-public static class FileType
-{
-    public const string drm = ".drm";
-    public const string pitchlist = ".pitchlist";
-    public const string csv = ".csv";
-}
 
 public static class Map
 {
     private static string FilePath = string.Empty;
     private static string Name { get; set; } = string.Empty;
-    private static List<MapItem> Items = new();
 
-    public static void Import(string file, ConvertType convertType, bool csvorder)
+    public static string Import(string file, FileExtension from, FileExtension to, bool isRaw)
     {
-        Items.Clear();
+        StringBuilder sb = new();
 
-        string ext = Path.GetExtension(file).ToLower();
+        sb.AppendLine($"Convert Report {file} From:{from} To:{to} IsRow:{isRaw}");
 
-        if (ext != FileType.drm && ext != FileType.pitchlist & ext != FileType.csv)
+        // check file
+        if (File.GetAttributes(file).HasFlag(FileAttributes.Directory))
         {
-            return;
-        }
-
-        if (ext == FileType.drm && convertType != ConvertType.BasedOnINote && convertType != ConvertType.BasedOnONote && convertType != ConvertType.CubaseToCSV)
-        {
-            return;
-        }
-        else if (ext == FileType.pitchlist && convertType != ConvertType.SOneToCubase && convertType != ConvertType.SOneToCSV)
-        {
-            return;
-        }
-        else if (ext == FileType.csv && convertType != ConvertType.CSVToSOne && convertType != ConvertType.CSVToCubase)
-        {
-            return;
+            sb.AppendLine($"#Skip 'Directory'");
+            goto labExit;
         }
 
-        // Import Map
-        if (ext == FileType.drm)
+        if (Path.GetExtension(file).Substring(1) != $"{from}")
         {
-            ImportMap(Cubase.CubaseDrumMap.Load(file), convertType == ConvertType.BasedOnONote, csvorder);
-        }
-        else if (ext == FileType.pitchlist)
-        {
-            if (StudioOnePitchList.Load(file) is not PitchList pitchList)
-            {
-                throw new Exception();
-            }
-
-            XDocument? xml = XDocument.Load(file);
-
-            ImportMap(pitchList, xml);
-        }
-        else if (ext == FileType.csv)
-        {
-            ImportMap(file);
+            sb.AppendLine($"#Skip 'Extension Unmatch'");
+            goto labExit;
         }
 
-        // Convert
-        if (
-            convertType == ConvertType.BasedOnINote ||
-            convertType == ConvertType.BasedOnONote ||
-            convertType == ConvertType.CSVToSOne
-        )
+        // proc Import
+        List<MapItem>? items = null;
+
+        try
         {
-            ToPitchList(file, convertType == ConvertType.BasedOnONote);
+            items =
+                from switch
+                {
+                    FileExtension.pitchlist => ImportPitchlist(file),
+                    FileExtension.drm => ImportDrm(file),
+                    FileExtension.csv => ImportCSV(file),
+                    FileExtension.txt => ImportTxt(file),
+                    _ => throw new NotImplementedException(),
+                };
         }
-        else if (
-            convertType == ConvertType.SOneToCubase ||
-            convertType == ConvertType.CSVToCubase
-        )
+        catch (Exception ex)
         {
-            ToDrm(file);
-        }
-        else if (
-            convertType == ConvertType.SOneToCSV ||
-            convertType == ConvertType.CubaseToCSV
-        )
-        {
-            ToCSV(file, csvorder);
+            sb.AppendLine($"#Abend Import");
+            sb.AppendLine(ex.Message);
+            goto labExit;
         }
 
+        if (items == null)
+        {
+            sb.AppendLine($"#Abend Import");
+            sb.AppendLine("Empty Data");
+            goto labExit;
+        }
+
+        // proc Export
+        try
+        {
+            bool ret =
+                to switch
+                {
+                    FileExtension.pitchlist => ToPitchList(items, file),
+                    FileExtension.drm => ToDrm(items, file),
+                    FileExtension.csv => ToCSV(items, file, isRaw),
+                    FileExtension.txt => throw new NotImplementedException(),
+                    _ => throw new NotImplementedException(),
+                };
+        }
+        catch (Exception ex)
+        {
+            sb.AppendLine($"#Abend Export");
+            sb.AppendLine(ex.Message);
+            goto labExit;
+        }
+
+        sb.AppendLine($"Convert Compleat");
+
+    labExit:
+        sb.AppendLine(string.Empty);
+        return sb.ToString();
     }
 
-    private static void ImportMap(Cubase.CubaseDrumMap drum, bool basedOnONote, bool csvorder)
+    private static List<MapItem>? ImportDrm(string file)
     {
+        if (CubaseDrumMap.Load(file) is not CubaseDrumMap drum) throw new ArgumentException();
+
+        var items = new List<MapItem>();
+
         Name = drum.Name;
 
         foreach (var d in drum.Order.Select(x => drum.Map.Items[x]))
         {
-            MapItem item = new()
-            {
-                PitchName = d.Name,
-                InPitch = d.INote,
-                OutPitch = d.ONote
-            };
-
-            Items.Add(item);
+            MapItem item =
+                new()
+                {
+                    PitchName = d.Name,
+                    InPitch = d.INote,
+                    OutPitch = d.ONote
+                };
+            items.Add(item);
         }
 
-        if (basedOnONote && Items.GroupBy(x => x.OutPitch).Where(x => x.Count() > 1).Any())
-        {
-            throw new Exception("Duplicate ONote");
-        }
+        return items;
     }
 
-    private static void ImportMap(PitchList drum, XDocument xml)
+    private static List<MapItem>? ImportPitchlist(string file)
     {
+        if (StudioOnePitchList.Load(file) is not PitchList drum) throw new ArgumentException();
+        if (XDocument.Load(file) is not XDocument xml) throw new ArgumentException();
+
+        var items = new List<MapItem>();
+
         Name = drum.Title;
 
         foreach (var d in drum.Items)
@@ -133,13 +125,12 @@ public static class Map
                 PitchName = d.Name,
                 OutPitch = d.Pitch
             };
-
-            Items.Add(item);
+            items.Add(item);
         }
 
         if (xml.Element("Music.PitchNameList")?.Nodes().Where(x => x.NodeType == XmlNodeType.Comment).ToArray() is not XNode[] comments)
         {
-            return;
+            throw new ArgumentException();
         }
 
         foreach (var com in comments)
@@ -156,7 +147,7 @@ public static class Map
                     int outp = 0;
                     if (int.TryParse(spl2[1], out inp) && int.TryParse(spl3[1], out outp))
                     {
-                        if (Items.Where(x => x.InPitch == inp).FirstOrDefault() is MapItem map)
+                        if (items.Where(x => x.InPitch == inp).FirstOrDefault() is MapItem map)
                         {
                             map.OutPitch = outp;
                         }
@@ -164,11 +155,17 @@ public static class Map
                 }
             }
         }
+
+        return items;
     }
 
-    private static void ImportMap(string file)
+    private static List<MapItem>? ImportCSV(string file)
     {
         string[] data = File.ReadAllLines(file);
+
+        var items = new List<MapItem>();
+
+        Name = Path.GetFileNameWithoutExtension(file);
 
         for (int i = 0; i < data.Length; i++)
         {
@@ -177,43 +174,57 @@ public static class Map
             if (map.IsHeader()) continue;
 
             if (map.IsValid())
-                Items.Add(map);
+                items.Add(map);
             else
                 throw new ArgumentException();
         }
+
+        return items;
     }
 
-    private static void ToPitchList(string file, bool onote)
+    private static List<MapItem>? ImportTxt(string file)
     {
+        var items = new List<MapItem>();
+        return items;
+    }
+
+    private static bool ToPitchList(List<MapItem> items, string file)
+    {
+        if (items.GroupBy(x => x.OutPitch).Select(x => x.Count()).Where(x => x > 1).Any())
+        {
+            throw new ArgumentException($"Duplicate OutPitch exist.");
+        }
+
         StringBuilder builder = new();
 
         builder.AppendLine($"<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-        builder.AppendLine($"<Music.PitchNameList title=\"{EscXML(Map.Name)}\">");
+        builder.AppendLine($"<Music.PitchNameList title=\"{EscXML(Name)}\">");
 
-        foreach (var item in Map.Items)
+        foreach (var item in items)
         {
             builder.AppendLine($"\t<!-- In Pitch = {item.InPitch}, Out Pitch = {item.OutPitch} -->");
-            builder.AppendLine($"\t<Music.PitchName pitch=\"{(onote ? item.OutPitch : item.InPitch)}\" name=\"{EscXML(item.PitchName)}\"/>");
+            builder.AppendLine($"\t<Music.PitchName pitch=\"{item.OutPitch}\" name=\"{EscXML(item.PitchName)}\"/>");
         }
 
         builder.AppendLine($"</Music.PitchNameList>");
 
-        File.WriteAllText(Path.Combine(Path.GetDirectoryName(file)!, $"{Path.GetFileNameWithoutExtension(file)}.pitchlist"), builder.ToString());
+        File.WriteAllText(Path.Combine(Path.GetDirectoryName(file)!, $"{Path.GetFileNameWithoutExtension(file)}.{FileExtension.pitchlist}"), builder.ToString());
+        return true;
     }
 
-    private static void ToDrm(string file)
+    private static bool ToDrm(List<MapItem> items, string file)
     {
         var cubase = new Cubase.CubaseDrumMap();
         cubase.Initialize();
 
-        cubase.Name = Map.Name;
+        cubase.Name = Name;
 
         Dictionary<int, int> odr = new();
 
         Enumerable.Range(0, 128).ToList().ForEach(pitch =>
         {
             odr.Add(pitch, 999);
-            if (Items.Where(x => x.InPitch == pitch).FirstOrDefault() is MapItem item)
+            if (items.Where(x => x.InPitch == pitch).FirstOrDefault() is MapItem item)
             {
                 cubase.Map.Items[pitch].Name = item.PitchName;
                 cubase.Map.Items[pitch].ONote = item.OutPitch;
@@ -222,7 +233,7 @@ public static class Map
         });
 
         int i = 1;
-        Items.ForEach(item =>
+        items.ForEach(item =>
         {
             odr[item.InPitch] = i;
             i++;
@@ -240,50 +251,71 @@ public static class Map
 
         if (Path.GetDirectoryName(file) is string dir)
         {
-            string filename = Path.Combine(dir, $"{Path.GetFileNameWithoutExtension(file)}.drm");
+            string filename = Path.Combine(dir, $"{Path.GetFileNameWithoutExtension(file)}.{FileExtension.drm}");
             cubase.Save(filename);
         }
+        return true;
     }
 
-    private static void ToCSV(string file, bool csvorder)
+    private static bool ToCSV(List<MapItem> items, string file, bool isRaw)
     {
         StringBuilder builder = new();
 
         builder.AppendLine(MapItem.GetCSVHeader());
 
-        int order = 0;
-        if (csvorder)
+        int seq = 0;
+
+        if (isRaw)
         {
             Enumerable.Range(0, 128).ToList().ForEach(pitch =>
             {
-                MapItem? item = Items.FirstOrDefault(x => x.InPitch == pitch);
-
-                var dup = Items.Where(x => x.OutPitch == item?.OutPitch).Count() > 1 ? "*" : string.Empty;
+                MapItem? item = items.FirstOrDefault(x => x.InPitch == pitch);
 
                 if (item != null)
                 {
-                    item.Order = order;
+                    item.Order = seq;
+                    item.Duplicate = items.Where(x => x.OutPitch == item?.OutPitch).Count() > 1 ? "*" : string.Empty;
                     builder.AppendLine($"{item}");
                 }
                 else
                 {
-                    builder.AppendLine($"{new MapItem { Order = order }}");
+                    builder.AppendLine($"{new MapItem { Order = seq }}");
                 }
-                order++;
+                seq++;
             });
         }
         else
         {
-            Items.ForEach(item =>
+            items.ForEach(item =>
             {
-                item.Order = order;
-                var dup = Items.Where(x => x.OutPitch == item.OutPitch).Count() > 1 ? "*" : string.Empty;
+                item.Order = seq;
+                item.Duplicate = items.Where(x => x.OutPitch == item.OutPitch).Count() > 1 ? "*" : string.Empty;
                 builder.AppendLine($"{item}");
-                order++;
+                seq++;
             });
         }
 
-        File.WriteAllText(Path.Combine(Path.GetDirectoryName(file)!, $"{Path.GetFileNameWithoutExtension(file)}_{Path.GetExtension(file).Replace(".", "")}.csv"), builder.ToString());
+        File.WriteAllText(Path.Combine(Path.GetDirectoryName(file)!, $"{Path.GetFileNameWithoutExtension(file)}.{FileExtension.csv}"), builder.ToString());
+        return true;
+    }
+
+    private static bool ToTxt(List<MapItem> items, string file)
+    {
+        StringBuilder builder = new();
+
+        int seq = 0;
+
+        items.ForEach(item =>
+        {
+            item.Order = seq;
+            var dup = items.Where(x => x.OutPitch == item.OutPitch).Count() > 1 ? "*" : string.Empty;
+            builder.AppendLine($"{item}");
+            seq++;
+        });
+
+        File.WriteAllText(Path.Combine(Path.GetDirectoryName(file)!, $"{Path.GetFileNameWithoutExtension(file)}.{FileExtension.txt}"), builder.ToString());
+
+        return true;
     }
 
     private static string EscXML(string str)
