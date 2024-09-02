@@ -45,17 +45,10 @@ public static class StudioOnePitchList
     public static PitchList? Load(string filepath)
     {
         var xml = new XmlSerializer(typeof(PitchList));
-        using (StreamReader sr = new(filepath))
-        {
-            if (xml.Deserialize(sr) is PitchList list)
-                return list;
-            else
-                return default;
-        }
-    }
-
-    public static XDocument XmlLoad(string filepath)
-    {
-        return XDocument.Load(filepath);
+        using StreamReader sr = new(filepath);
+        if (xml.Deserialize(sr) is PitchList list)
+            return list;
+        else
+            return default;
     }
 }
