@@ -67,7 +67,7 @@ public static class Map
                     FileExtension.pitchlist => ToPitchList(items, file),
                     FileExtension.drm => ToDrm(items, file),
                     FileExtension.csv => ToCSV(items, file, isRaw),
-                    FileExtension.txt => throw new NotImplementedException(),
+                    FileExtension.txt => ToTxt(items, file),
                     _ => throw new NotImplementedException(),
                 };
         }
@@ -184,7 +184,35 @@ public static class Map
 
     private static List<MapItem>? ImportTxt(string file)
     {
+        string[] data = File.ReadAllLines(file);
+
         var items = new List<MapItem>();
+
+        Name = Path.GetFileNameWithoutExtension(file);
+
+        int count = 0;
+
+        foreach (var line in data.Select(x => x.Trim()))
+        {
+            count++;
+
+            if (line.StartsWith("#")) continue;
+            if (line.Trim().Length == 0) continue;
+
+            string[] spl = line.Replace('\t', ' ').Split(' ');
+
+            if (!int.TryParse(spl[0], out int inpitch)) throw new ArgumentException($"Bad Format Line:{count}");
+            string name = string.Join(" ", spl.Skip(1).ToArray());
+
+            MapItem item = new()
+            {
+                InPitch = inpitch,
+                PitchName = name,
+                OutPitch = inpitch
+            };
+            items.Add(item);
+        }
+
         return items;
     }
 
@@ -259,9 +287,9 @@ public static class Map
 
     private static bool ToCSV(List<MapItem> items, string file, bool isRaw)
     {
-        StringBuilder builder = new();
+        StringBuilder sb = new();
 
-        builder.AppendLine(MapItem.GetCSVHeader());
+        sb.AppendLine(MapItem.GetCSVHeader());
 
         int seq = 0;
 
@@ -275,11 +303,11 @@ public static class Map
                 {
                     item.Order = seq;
                     item.Duplicate = items.Where(x => x.OutPitch == item?.OutPitch).Count() > 1 ? "*" : string.Empty;
-                    builder.AppendLine($"{item}");
+                    sb.AppendLine($"{item}");
                 }
                 else
                 {
-                    builder.AppendLine($"{new MapItem { Order = seq }}");
+                    sb.AppendLine($"{new MapItem { Order = seq }}");
                 }
                 seq++;
             });
@@ -290,30 +318,34 @@ public static class Map
             {
                 item.Order = seq;
                 item.Duplicate = items.Where(x => x.OutPitch == item.OutPitch).Count() > 1 ? "*" : string.Empty;
-                builder.AppendLine($"{item}");
+                sb.AppendLine($"{item}");
                 seq++;
             });
         }
 
-        File.WriteAllText(Path.Combine(Path.GetDirectoryName(file)!, $"{Path.GetFileNameWithoutExtension(file)}.{FileExtension.csv}"), builder.ToString());
+        File.WriteAllText(Path.Combine(Path.GetDirectoryName(file)!, $"{Path.GetFileNameWithoutExtension(file)}.{FileExtension.csv}"), sb.ToString());
         return true;
     }
 
     private static bool ToTxt(List<MapItem> items, string file)
     {
-        StringBuilder builder = new();
+        StringBuilder sb = new();
 
         int seq = 0;
 
-        items.ForEach(item =>
+        sb.AppendLine($"# {Name}");
+
+        items
+            .Where(item => !string.IsNullOrWhiteSpace(item.PitchName))
+            .ToList()
+            .ForEach(item =>
         {
             item.Order = seq;
-            var dup = items.Where(x => x.OutPitch == item.OutPitch).Count() > 1 ? "*" : string.Empty;
-            builder.AppendLine($"{item}");
+            sb.AppendLine($"{item.InPitch}\t{item.PitchName}");
             seq++;
         });
 
-        File.WriteAllText(Path.Combine(Path.GetDirectoryName(file)!, $"{Path.GetFileNameWithoutExtension(file)}.{FileExtension.txt}"), builder.ToString());
+        File.WriteAllText(Path.Combine(Path.GetDirectoryName(file)!, $"{Path.GetFileNameWithoutExtension(file)}.{FileExtension.txt}"), sb.ToString());
 
         return true;
     }
