@@ -83,7 +83,7 @@ public class CubaseDrumMap
 
         doc.Add(root);
 
-        root.Add(new XElement(Tag.@string, [new XAttribute(Attr.name, $"{nameof(Name)}"), new XAttribute(Attr.value, Name), new XAttribute(Attr.wide, true.ToString())]));
+        root.Add(new XElement(Tag.@string, [new XAttribute(Attr.name, $"{nameof(Name)}"), new XAttribute(Attr.value, Name), new XAttribute(Attr.wide, true.ToString().ToLower())]));
 
         root.Add(Quantize.ToElement());
 
@@ -215,7 +215,7 @@ public abstract class ListElementItem
                     new XAttribute[] {
                         new XAttribute(Attr.name, $"{p.Name}"),
                         new XAttribute(Attr.value, $"{p.GetValue(this)}"),
-                        new XAttribute(Attr.wide, true.ToString()),
+                        new XAttribute(Attr.wide, true.ToString().ToLower()),
                     }
                     :
                     [
