@@ -2,8 +2,8 @@
 CubaseおよびStudio Oneのドラムマップを相互変換するツールです。Windowsでのみ利用可能です。  
 ![QB Converter Image](https://github.com/user-attachments/assets/70f7498e-fbd2-4669-a9be-c2c4a7801250)
 ### 特徴
-- ７つの変換タイプ搭載
-- ドラムマップ以外にCSVファイルへの変換も対応
+- ドラッグ＆ドロップの簡単操作
+- CSV,Text形式への変換、逆変換も可能
 
 ### インストール
 https://github.com/Max-Min-23/QB-Converter/blob/master/QB%20Converter%201.0.0.zip  
@@ -12,21 +12,18 @@ https://github.com/Max-Min-23/QB-Converter/blob/master/QB%20Converter%201.0.0.zi
 レジストりは使用していませんので。不要になった場合はフォルダ毎削除してください。
 
 ### 使い方
-"Select Convert Type"より変換タイプを選択し、"Drop File Here!"と表示されている部分にファイルをドラッグ＆ドロップするだけです。
+"Select Convert Type"よりFrom（変換元）,To(変換先)を選択しウィンドウ内にファイルをドラッグ＆ドロップしてください。
 複数まとめてドロップ可能です。
 変換されたファイルは元ファイルと同じフォルダに出力されます。
 同名のファイルがある場合は上書きされます。
 
 ### 変換タイプ
-タイプ名 | 変換内容
+タイプ名 | 内容
 --- | --- 
-*.drm -> *.pitchlist Based On In Pitch | Cubaseの*.drmを、入力ノートを基準にStudio Oneの*.pitchlistへ変換します
-*.drm -> *.pitchlist Based On Out Pitch | Cubaseの*.drmを、出力ノートを基準にStudio Oneの*.pitchlistへ変換します
-*.pitchlist -> *.drm | Studio Oneの*.pitchlistをCubasの*.drmへ変換します
-*.drm -> .csv | Cubaseの*.drmファイルを、CSVファイルへ変換します
-*.Pitchlist -> .csv | Studio Oneの*.pitchlistを、CSVファイルへ変換します
-*.csv -> *.pitchlist | CSVファイルをCubasの*.drmへ変換します
-*.csv -> *.drm | Studio Oneの*.pitchlistへ変換します
+drm | Cubaseのドラムマップファイル
+pit | Studio Oneのピッチリストファイル
+csv | CSVファイル
+txt | テキストファイル
 
 ### "CSV Pitch Order"
 チェックがない場合は元データの並び順で出力されます。  
@@ -49,7 +46,11 @@ Out Pitch | 出力ノート |
 Out Note | 出力ノート名 | 
 Name | インストルメント名 | 
 Duplicate | 出力ノート重複 | 重複した出力ノートがある場合に＊がセットされます。  CSVからの変換の際、空白以外が設定された行は無視されます。
-Check | 強制出力 | CSVからの変換する際、空白以外を設定しておくと強制的に取り込みされます
+Check | 予備 | 
 Tag | 予備 | 
+
+### テキストファイルフォーマット
+一行にタブ区切りでピッチ番号、インスツルメント名を入力してください。
+行頭の'#'はコメント行となります。
 
 
