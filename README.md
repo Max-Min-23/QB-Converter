@@ -1,6 +1,7 @@
 # QB Converter
-![qb converter](https://github.com/user-attachments/assets/878b6527-3936-4053-9793-324ca711f110)
 CubaseおよびStudio Oneのドラムマップを相互変換するツールです。Windowsでのみ利用可能です。  
+![qb converter](https://github.com/user-attachments/assets/878b6527-3936-4053-9793-324ca711f110)
+
 ### 特徴
 - ドラッグ＆ドロップの簡単操作
 - CSV,Text形式への変換、逆変換も可能
