@@ -111,7 +111,6 @@ public static class Map
     private static List<MapItem>? ImportPitchlist(string file)
     {
         if (StudioOnePitchList.Load(file) is not PitchList drum) throw new ArgumentException();
-        if (XDocument.Load(file) is not XDocument xml) throw new ArgumentException();
 
         var items = new List<MapItem>();
 
@@ -126,34 +125,6 @@ public static class Map
                 OutPitch = d.Pitch
             };
             items.Add(item);
-        }
-
-        if (xml.Element("Music.PitchNameList")?.Nodes().Where(x => x.NodeType == XmlNodeType.Comment).ToArray() is not XNode[] comments)
-        {
-            throw new ArgumentException();
-        }
-
-        foreach (var com in comments)
-        {
-            var text = com.ToString().Substring(4, com.ToString().Length - 7);
-            var spl1 = text.Split(',').Select(x => x.Trim()).ToArray();
-            if (spl1.Length == 2)
-            {
-                var spl2 = spl1[0].Split("=").Select(x => x.Trim()).ToArray();
-                var spl3 = spl1[1].Split("=").Select(x => x.Trim()).ToArray();
-                if (spl2.Length == 2 && spl3.Length == 2 && spl2[0] == "In Pitch" && spl3[0] == "Out Pitch")
-                {
-                    int inp = 0;
-                    int outp = 0;
-                    if (int.TryParse(spl2[1], out inp) && int.TryParse(spl3[1], out outp))
-                    {
-                        if (items.Where(x => x.InPitch == inp).FirstOrDefault() is MapItem map)
-                        {
-                            map.OutPitch = outp;
-                        }
-                    }
-                }
-            }
         }
 
         return items;
