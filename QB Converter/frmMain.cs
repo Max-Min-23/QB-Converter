@@ -28,7 +28,7 @@ namespace QB_Converter
             btnClear.Click += BtnClear_Click;
 
             DragEnter += this_DragEnter;
-            DragDrop += thisrop_DragDrop;
+            DragDrop += this_DragDrop;
 
             Worker.DoWork += Worker_DoWork;
             Worker.ProgressChanged += Worker_ProgressChanged;
@@ -51,7 +51,7 @@ namespace QB_Converter
             e.Effect = DragDropEffects.All;
         }
 
-        private void thisrop_DragDrop(object? sender, DragEventArgs e)
+        private void this_DragDrop(object? sender, DragEventArgs e)
         {
             if (e.Data is not IDataObject data) return;
 

@@ -302,7 +302,7 @@ public static class Map
                 if (item != null)
                 {
                     item.Order = seq;
-                    item.Duplicate = items.Where(x => x.OutPitch == item?.OutPitch).Count() > 1 ? "*" : string.Empty;
+                    item.Duplicate = items.Where(x => x.OutPitch == item.OutPitch).Count() > 1 ? "*" : string.Empty;
                     sb.AppendLine($"{item}");
                 }
                 else
