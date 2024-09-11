@@ -201,7 +201,6 @@ public static class Map
 
         foreach (var item in items)
         {
-            builder.AppendLine($"\t<!-- In Pitch = {item.InPitch}, Out Pitch = {item.OutPitch} -->");
             builder.AppendLine($"\t<Music.PitchName pitch=\"{item.OutPitch}\" name=\"{EscXML(item.PitchName)}\"/>");
         }
 
