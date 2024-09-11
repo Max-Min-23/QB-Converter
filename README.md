@@ -4,7 +4,7 @@ CubaseおよびStudio Oneのドラムマップを相互変換するツールで�
 
 ### 特徴
 - ドラッグ＆ドロップの簡単操作
-- CSV,Text形式への変換、逆変換も可能
+- drm,pitchlist,CSV,Textの４形式を変換、逆変換
 
 ### インストール
 https://github.com/Max-Min-23/QB-Converter/releases
