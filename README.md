@@ -42,11 +42,11 @@ Studio Oneのドラムマップは出力ノートのみの指定となってい�
 列名 | 内容 | 備考
 --- | --- | ---
 Order | 表示順 | 
-Pitch | 入力ピッチ番号 | 0～127
-Note | 入力ノート名 | 
-Out Pitch | 出力ピッチ番号 | 0～127
-Out Note | 出力ノート名 | 
-Name | ピッチ名 | 
+InPitch | 入力ピッチ番号 | 0～127
+InNote | 入力ノート名 | 
+OutPitch | 出力ピッチ番号 | 0～127
+OutNote | 出力ノート名 | 
+PitchName | ピッチ名 | 
 Duplicate | 出力ノート重複 | 重複した出力ノートがある場合に＊がセットされます。
 Check | 予備 | 
 Tag | 予備 | 
