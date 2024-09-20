@@ -23,7 +23,7 @@ https://github.com/Max-Min-23/QB-Converter/releases/tag/v1.0.0
 タイプ名 | 内容
 --- | --- 
 drm | Cubaseのドラムマップファイル
-pit | Studio Oneのピッチリストファイル
+pitchlist | Studio Oneのピッチリストファイル
 csv | CSVファイル
 txt | テキストファイル
 
