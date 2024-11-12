@@ -1,6 +1,4 @@
 ﻿using System.Text;
-using System.Xml;
-using System.Xml.Linq;
 using Cubase;
 
 namespace QB_Converter;

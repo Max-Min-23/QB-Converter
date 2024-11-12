@@ -283,6 +283,9 @@ public class MapItem
     public int PortIndex { get; set; } = 0;
     public string Name { get; set; } = string.Empty;
     public int QuantizeIndex { get; set; } = 0;
+    public int NoteheadSet { get; set; } = 0;
+    public string InstrumentEntityID { get; set; } = string.Empty;
+    public string TechniqueEntityID { get; set; } = string.Empty;
 }
 
 public class OutputDevicesElement
